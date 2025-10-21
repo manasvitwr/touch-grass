@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Time to Touch Grass</title>
+
+    <!-- Terminal Font -->
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    <!-- Glass morphism and modern styles -->
+    <style>
+        :root {
+            --neon-cyan: #0ff;
+            --neon-magenta: #f0f;
+            --neon-green: #0f0;
+            --neon-yellow: #ff0;
+            --neon-orange: #ff7700;
+            --neon-blue: #00f;
+            --bg-dark: #000000;
+            --bg-darker: #000000;
+            --bg-panel: rgba(0, 10, 20, 0.3);
+            --glow-intensity: 0.6;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'VT323', monospace;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-darker) 0%, #001122 100%);
+            color: var(--neon-cyan);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* CRT Effects - More Subtle */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.15) 50%
+            );
+            background-size: 100% 3px;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0.2;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.05);
+            animation: flicker 0.2s infinite;
+            z-index: 1001;
+            pointer-events: none;
+            opacity: 0.03;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 0.03; }
+            50% { opacity: 0.06; }
+        }
+
+        /* Glass morphism panels - More Subtle */
+        .glass-panel {
+            background: var(--bg-panel);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 12px;
+            box-shadow: 
+                0 0 15px rgba(0, 255, 255, 0.15),
+                inset 0 0 15px rgba(0, 255, 255, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .glow-border {
+            position: relative;
+        }
+
+        .glow-border::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, 
+                var(--neon-cyan), 
+                var(--neon-blue), 
+                var(--neon-magenta), 
+                var(--neon-cyan));
+            border-radius: 14px;
+            z-index: -1;
+            opacity: 0.3;
+            animation: glowRotate 6s linear infinite;
+        }
+
+        @keyframes glowRotate {
+            0% { filter: hue-rotate(0deg) blur(8px); }
+            100% { filter: hue-rotate(360deg) blur(8px); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Gigantic Title */
+        .main-title {
+            text-align: left;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .title-pre {
+            font-size: 2.5rem;
+            color: rgba(0, 255, 255, 0.7);
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+            display: block;
+            margin-bottom: -10px;
+        }
+
+        .title-main {
+            font-size: 5rem;
+            color: var(--neon-cyan);
+            text-shadow: 
+                0 0 10px var(--neon-cyan),
+                0 0 10px var(--neon-cyan),
+                0 0 20px var(--neon-cyan);
+            font-weight: bold;
+            display: block;
+            line-height: 1;
+            letter-spacing: 3px;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px var(--neon-cyan);
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        h4 {
+            font-size: 1.8rem;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+            padding-bottom: 0.5rem;
+        }
+
+        small {
+            color: rgba(0, 255, 255, 0.7);
+            font-size: 0.9em;
+        }
+
+        b {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        th {
+            color: var(--neon-green);
+            text-shadow: 0 0 8px var(--neon-green);
+            font-size: 1.2rem;
+        }
+
+        tr:hover td {
+            background: rgba(0, 255, 255, 0.1);
+            color: var(--neon-yellow);
+            text-shadow: 0 0 5px var(--neon-yellow);
+        }
+
+        /* Footer Styles */
+        .footer {
+            margin-top: 40px;
+            padding: 20px 0;
+            border-top: 1px solid rgba(0, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .footer-line {
+            font-size: 1.5rem;
+            margin: 5px 0;
+            opacity: 0;
+            animation: typeIn 0.5s ease-out forwards;
+            color: var(--neon-magenta);
+            text-shadow: 0 0 5px var(--neon-magenta);
+        }
+
+        .footer-line:nth-child(1) { animation-delay: 0.5s; }
+        .footer-line:nth-child(2) { animation-delay: 1.5s; }
+        .footer-line:nth-child(3) { animation-delay: 2.5s; }
+        .footer-line:nth-child(4) { animation-delay: 3.5s; }
+        .footer-line:nth-child(5) { animation-delay: 4.5s; }
+
+        @keyframes typeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .signaturename {
+            margin-top: 20px;
+            font-size: 1.4rem;
+            color: var(--neon-green);
+            text-shadow: 0 0 8px var(--neon-green);
+            animation: pulse 2s infinite;
+        }
+
+        .signature {
+            margin-top: 20px;
+            font-size: 1.4rem;
+            color: var(--neon-cyan);
+            text-shadow: 0 0 8px var(--neon-cyan);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+
+        /* Responsive design */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+
+        .col {
+            padding: 0 10px;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        /* Tooltip enhancements */
+        .tooltip {
+            background: rgba(0, 10, 20, 0.9) !important;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 255, 255, 0.4) !important;
+            border-radius: 8px !important;
+            box-shadow: 
+                0 0 25px rgba(0, 255, 255, 0.2),
+                inset 0 0 15px rgba(0, 255, 255, 0.1) !important;
+            color: var(--neon-cyan) !important;
+            font-size: 1.1rem !important;
+            padding: 15px !important;
+            text-shadow: 0 0 5px var(--neon-cyan);
+        }
+
+        /* Color badges in table */
+        .color-badge {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 6px currentColor;
+            vertical-align: middle;
+        }
+
+        /* Loading animation */
+        .loading {
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 0.2s forwards;
+        }
+
+        @media (max-width: 768px) {
+            .col {
+                flex: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .glass-panel {
+                padding: 15px;
+            }
+            
+            h4 {
+                font-size: 1.5rem;
+            }
+            
+            .title-pre {
+                font-size: 2rem;
+            }
+            
+            .title-main {
+                font-size: 3.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title-pre {
+                font-size: 1.5rem;
+            }
+            
+            .title-main {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container loading">
+        <!-- Gigantic Title -->
+        <div class="main-title">
+            <span class="title-pre">time to</span>
+            <span class="title-main">Touch Grass</span>
+        </div>
+
+        <div class="row">
+            <div class="col l6 m12">
+                <div class="glass-panel glow-border">
+                    <div id="pieChart" style="margin: auto;"></div>
+                </div>
+            </div>
+            <div class="col l6 m12">
+                <div class="glass-panel">
+                    <h4 id="title"></h4>
+                    <p id="generated"></p>
+                </div>
+                <div id="numeric" class="glass-panel">
+                    <table>
+                        <tr>
+                            <th>Process</th>
+                            <th>Time</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel glow-border">
+            <div id="my_dataviz" style="position: relative;"></div>
+        </div>
+
+        <!-- Animated Footer -->
+         <div class="footer">
+            <div class="footer-content">
+                <div id="footer-terminal">
+                    <div class="terminal-line">
+                        <span class="prompt">$</span>
+                        <span class="signature">Initializing ManasviOS v2.0...</span>
+                    </div>
+                    <div class="terminal-line">
+                        <span class="prompt">$</span>
+                        <span class="signature">Loading sarcasm module...</span>
+                    </div>
+                    <div id="dynamic-line" class="terminal-line">
+                        <span class="prompt">$</span>
+                        <span id="signature" class="signature"></span>
+                        <span class="cursor">|</span>
+                    </div>
+                </div>
+                <div class="signaturename">built w <3 by Manasvi</div>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: none;" id="json_data">{{json_data}}</div>
+    
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" crossorigin="anonymous"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="d3pie.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
