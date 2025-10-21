@@ -1,0 +1,17 @@
+{
+    "chrome": "#3B82F6",
+    "firefox": "#EF4444",
+    "code": "#10B981",
+    "gedit": "#6B7280",
+    "gnome-terminal": "#111827",
+    "vlc": "#8B5CF6",
+    "spotify": "#84CC16",
+    "discord": "#6366F1",
+    "slack": "#EC4899",
+    "thunderbird": "#F59E0B",
+    "libreoffice": "#06B6D4",
+    "nautilus": "#F97316",
+    "gimp": "#84CC16",
+    "inkscape": "#DC2626",
+    "blender": "#F59E0B"
+}
