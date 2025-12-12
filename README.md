@@ -1,112 +1,118 @@
-# Touch Grass
+Touch Grass is a Windows activity tracker for people who suspect they should probably touch grass a bit more often. It logs what you are actually doing on your PC, stores everything locally, and turns it into heatmaps, charts, and time‑series graphs so you can see where the day really went.
 
-[![Built for Windows](https://img.shields.io/badge/Platform-Windows-blue.svg)](https://microsoft.com/windows)
-[![Python 3.x](https://img.shields.io/badge/Python-3.x-yellow.svg)](https://www.python.org/)
-[![Privacy First](https://img.shields.io/badge/Privacy-Local_Storage_Only-green.svg)](#)
+## Overview
 
-> **"Touch Grass"** is a detailed activity tracker that records your active window every 30 seconds and generates beautiful, interactive reports—so you can analyze (and sometimes regret) how you spend your digital life.
+Touch Grass watches which window is in focus on your machine and keeps a minute‑by‑minute (or sub‑minute) log of your activity. The UI then turns those logs into a graphical daily “story” of your screen time, with visual summaries that make it easy to recall, analyse, and, if needed, regret how you spent the day.
 
----
+## Features
 
-## 📋 Table of Contents
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Installation](#-installation)
-- [Usage](#%EF%B8%8F-usage)
-- [Project Structure](#-project-structure)
-- [Configuration](#%EF%B8%8F-configuration)
-- [Screenshots](#-screenshots)
+- Tracks active window title and process at a fixed interval (for example every 30 or 60 seconds).  
+- Logs each day to a local CSV file so your raw data stays on your machine and is easy to inspect or back up.  
+- Generates an HTML report with heatmaps, charts, and time graphs, including support for previous days via the `--daysago` flag.
 
-## ✨ Features
 
-- **High-Resolution Tracking**: Captures your active window title and process name every 30 seconds using native Win32 APIs.
-- **Privacy-First Architecture**: Your data never leaves your machine. All logs are stored in local, human-readable CSV files in the `csv_data` folder.
-- **Beautiful Visuals**: Generates an offline HTML dashboard with interactive D3.js charts to visualize your day.
-- **Windows Native**: Optimized specifically for Windows environments.
+## Installation
 
-## 🛠 Tech Stack
+1. Install Python 3.x and make sure `python` is available in your PATH.  
+2. (Recommended) Create and activate a virtual environment in the project folder:  
+   - `python -m venv venv`  
+   - On Command Prompt: `venv\Scripts\activate`  
+   Using a virtual environment keeps this project’s dependencies isolated from everything else.  
+3. Clone this repository to a local folder.  
+4. From the repository root (with the virtual environment activated, if you are using one), install dependencies:  
+   - `pip install -r requirements.txt`  
+5. Run `touch_grass.py` and `activity_report.py` once from a terminal to confirm everything works.
 
-- **Core**: Python 3.x (`pywin32`, `psutil` for system monitoring).
-- **Reporting**: HTML5, JavaScript (`D3.js` for charts), `Jinja2` (templating).
-- **Storage**: CSV (Local file system).
+## Usage
 
-## 🚀 Installation
+### One‑off tracking session
 
-### Prerequisites
-- **OS**: Windows 10 or Windows 11.
-- **Python**: Python 3.x installed and added to your system `PATH`.
+- Start tracking the current session:  
+  `python touch_grass.py`  
+- When you are done, stop the script and generate a report for today:  
+  `python activity_report.py`
 
-### Setup
-1.  **Clone the repository**:
-    ```bash
-    git clone https://github.com/yourusername/touch-grass.git
-    cd touch-grass
-    ```
+### Continuous tracking with `--continuous`
 
-2.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+- To keep logging running in the background all day, use:  
+  `python touch_grass.py --continuous`  
+- This mode is meant to be started automatically so you do not have to remember it every morning.
 
-## 🕹️ Usage
+### Viewing previous days with `--daysago`
 
-You can use the provided batch files for a one-click experience, or run commands manually.
+- To generate a report for a previous day:  
+  `python activity_report.py --daysago N`  
+- `N` is the number of days ago (for example, `--daysago 1` for yesterday, `--daysago 7` for the same weekday last week).
 
-### 1. Start Tracking
-**Option A: Automatic (Recommended)**
-Double-click `create_touch_grass_task.bat` to schedule the tracker to run automatically every time you log in.
+## Automating with Windows Task Scheduler
 
-**Option B: Manual**
-Run the following command in your terminal:
-```bash
-python touch_grass.py --continuous
-```
-*Note: This will capture data every 30 seconds until you close the window.*
+### Option 1: Task Scheduler UI
 
-### 2. Stop Tracking
-**Option A:**
-Double-click `delete_touch_grass_task.bat` to remove the background task.
+1. Open the Start menu, search for “Task Scheduler”, and launch it.  
+2. In the “Actions” pane, click “Create Task…”.  
+3. On the “General” tab, give it a name like `TouchGrass Continuous Logger` and select “Run only when user is logged on”.  
+4. On the “Triggers” tab, click “New…”, set “Begin the task” to “At log on”, pick your user account, and save.  
+5. On the “Actions” tab, click “New…”, set “Action” to “Start a program”, then:  
+   - Program/script: path to `python.exe` (for example `C:\Users\<you>\AppData\Local\Programs\Python\Python39\python.exe`).  
+   - Add arguments: `"<path-to-repo>\touch_grass.py" --continuous`  
+   - Start in: the repo folder (for example `C:\Users\<you>\Projects\touch-grass`).  
+6. Save the task. From the next logon onwards, Touch Grass will start tracking automatically.
 
-**Option B:**
-If running manually, simply press `Ctrl+C` in the terminal window.
+### Option 2: Command‑line task using `schtasks`
 
-### 3. Generate Reports
-**Option A: One-Click**
-Double-click `run_touch_grass_report.bat`. This will generate today's report and open it in your browser.
+1. Open Command Prompt as the user who should run the tracker.  
+2. Create the task (edit paths and Python version as needed):  
+   ```cmd
+   schtasks /CREATE /SC ONLOGON /TN "TouchGrass\ContinuousLogger" ^
+     /TR "\"C:\Path\To\Python\python.exe\" \"C:\Path\To\Repo\touch_grass.py\" --continuous" ^
+     /RU "%USERNAME%"
+   ```
+3. Check that it exists:  
+   ```cmd
+   schtasks /QUERY /TN "TouchGrass\ContinuousLogger"
+   ```
 
-**Option B: Manual Command**
-To generate a report for today:
-```bash
-python activity_report.py
-```
+## Getting started with the helper batch files
 
-To generate a report for a specific number of days ago (e.g., 3 days ago):
-```bash
-python activity_report.py --daysago 3
-```
+To keep things as low‑effort as possible, the repo can include batch scripts so you manage logging and reports with a couple of double‑clicks instead of typing commands.
 
-## 📂 Project Structure
+### Step 1 – Configure your Python path (optional but recommended)
 
-- `touch_grass.py`: The main tracking script that hooks into Win32 APIs.
-- `activity_report.py`: The report generator that compiles CSV data into an HTML dashboard.
-- `csv_data/`: Directory containing daily logs (e.g., `watch-MM-DD-YYYY.csv`).
-- `web/`: Frontend assets (`index.html`, `d3pie.js`, CSS) for the dashboard.
-- `*.bat`: Helper scripts for scheduling and reporting.
+- Open `create_touch_grass_task.bat` and `run_touch_grass_report.bat` in a text editor.  
+- In both files, find the line that sets `PYTHON_PATH`.  
+- If `python` already works in a terminal, leave it as `python.exe`.  
+- If you use a specific interpreter or a virtual environment, point it to that instead, for example:  
+  `C:\Users\<your-user>\Projects\touch-grass\venv\Scripts\python.exe`  
+  This ensures the scheduled task and batch files use the same environment you installed dependencies into.
 
-## ⚠️ Configuration
+### Step 2 – Enable continuous tracking at logon
 
-- **Data Storage**: Logs are stored in the `./csv_data` directory relative to the script.
-- **Ignored Apps**: Currently, all active windows are logged.
-- **Customization**: You can edit the batch files (`.bat`) to point to a specific Python executable if it's not in your global `PATH`.
+- Make sure `touch_grass.py` and `create_touch_grass_task.bat` live in the same folder.  
+- Right‑click `create_touch_grass_task.bat` and choose “Run as administrator” (recommended) or double‑click it.  
+- The script will create a scheduled task called `TouchGrass\ContinuousLogger` that runs `touch_grass.py --continuous` every time you log in.  
+- Once it shows a success message, you can close the window; tracking is now on autopilot.
 
-## 📸 Screenshots
+### Step 3 – Generate and open reports with a click
 
-<div align="center">
-    <img src="./assets/SS1.png" width="800px" alt="Dashboard Overview"/>
-    <br/><br/>
-    <img src="./assets/SS2.png" width="800px" alt="Activity Breakdown"/>
-</div>
+Once the logger has been running for a while, you can use a batch file to generate reports.
 
----
+- To generate a report for **today**:  
+  - Double‑click `run_touch_grass_report.bat`.  
+  - It will run `activity_report.py` for today and open the HTML dashboard in your default browser (or drop the file where it normally does).
 
-**Made with 💚 for those who need to touch grass.**
+- To generate a report for **a previous day** using `--daysago`:  
+  - Right‑click `run_touch_grass_report.bat` and choose “Create shortcut”.  
+  - Edit the shortcut’s “Target” and add a number after the filename, for example:  
+    `run_touch_grass_report.bat 1` (yesterday) or `run_touch_grass_report.bat 7` (last week).  
+  - Double‑click that shortcut whenever you want that specific report.  
+  - You can also run the batch directly from a terminal, for example:  
+    `run_touch_grass_report.bat 1`
+
+### Step 4 – Disable continuous tracking
+
+- When you want to stop Touch Grass from starting at logon, double‑click `delete_touch_grass_task.bat`.  
+- The script removes the `TouchGrass\ContinuousLogger` task and prints a confirmation before closing.
+
+
+Set it up once, let it quietly watch your screen time, and then use the reports to decide whether you earned your right to not touch grass today—or whether it is time to close the browser and go outside 🍀
+
