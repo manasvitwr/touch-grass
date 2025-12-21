@@ -6,9 +6,11 @@ Touch Grass watches which window is in focus on your machine and keeps a minute�
 
 ## Features
 
-- Tracks active window title and process at a fixed interval (for example every 30 or 60 seconds).  
-- Logs each day to a local CSV file so your raw data stays on your machine and is easy to inspect or back up.  
-- Generates an HTML report with heatmaps, charts, and time graphs, including support for previous days via the `--daysago` flag.
+- **Activity Heatmap**: The Activity panel now renders a weekly heatmap: days on the X‑axis, hourly slots on the Y‑axis, with brightness showing how engaged you were in each block.
+- **Focus vs Distraction**: A “Focus vs Distraction” summary panel breaks your day into Deep work, Admin & overhead, Distraction, and Off‑PC time, with a countdown until you hit your daily distraction cap.
+- **App List Readability**: Process names are normalised for readability (comet.exe → Comet, social apps like WhatsApp and Instagram are detected from window titles and grouped under Distraction).
+- **Local Logging**: Tracks active window title and process at a fixed interval (for example every 30 or 60 seconds) and logs each day to a local CSV file.
+- **Reports**: Generates an HTML report with heatmaps, charts, and time graphs.
 
 
 ## Installation
