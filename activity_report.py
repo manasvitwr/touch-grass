@@ -10,7 +10,8 @@ def setup_scheduler():
     return True
 @click.command()
 @click.option('--daysago', default=0, help="Number of days ago to generate report for (0 for today)")
-def run(daysago):
+@click.option('--range', default=7, help="Number of days to include in the heatmap window")
+def run(daysago, range):
     """Activity Tracker - Generate desktop activity reports"""
     
     # Setup scheduler and check status
@@ -23,7 +24,7 @@ def run(daysago):
     # Generate report for specified date
     date = datetime.now() - timedelta(days=daysago)
     date_str = date.strftime("%m-%d-%Y")
-    report_path = report_builder(date_str)
+    report_path = report_builder(date_str, range_days=range)
 
     if not report_path:
         click.echo(click.style(f'No activity data found for {date_str}', fg='red'))
