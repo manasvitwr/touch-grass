@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Time to Touch Grass</title>
-
+    <title>TIME TO TOUCH GRASS</title>
     <!-- Terminal Font -->
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-    
-    <!-- Glass morphism and modern styles -->
     <style>
         :root {
-            --neon-cyan: #0ff;
-            --neon-magenta: #f0f;
-            --neon-green: #0f0;
-            --neon-yellow: #ff0;
-            --neon-orange: #ff7700;
-            --neon-blue: #00f;
-            --bg-dark: #000000;
-            --bg-darker: #000000;
-            --bg-panel: rgba(0, 10, 20, 0.3);
-            --glow-intensity: 0.6;
+            /* Palette matched to provided mockup */
+            --neon-green: #4af626;
+            /* Primary Text / Highlights */
+            --neon-green-dim: #1e5318;
+            /* Borders / Dimmed elements */
+            --neon-green-mid: #2e8b23;
+            /* Mid-tone */
+            --bg-dark: #050a05;
+            /* Almost Black */
+            --glass-bg: rgba(5, 15, 5, 0.9);
+            --border-color: #1e5318;
+            --text-main: #4af626;
+            --text-dim: #2e8b23;
         }
 
         * {
@@ -30,391 +30,620 @@
         }
 
         body {
-            background: linear-gradient(135deg, var(--bg-darker) 0%, #001122 100%);
-            color: var(--neon-cyan);
+            background-color: var(--bg-dark);
+            color: var(--neon-green);
             margin: 0;
             padding: 20px;
             min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
+            overflow-y: auto;
+            /* Enable vertical scroll */
+            display: flex;
+            flex-direction: column;
+            background-image:
+                linear-gradient(rgba(0, 255, 0, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
         }
 
-        /* CRT Effects - More Subtle */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                rgba(18, 16, 16, 0) 50%, 
-                rgba(0, 0, 0, 0.15) 50%
-            );
-            background-size: 100% 3px;
-            z-index: 1000;
-            pointer-events: none;
-            opacity: 0.2;
-        }
-
+        /* CRT Scanline Effect */
         body::after {
-            content: "";
+            content: " ";
+            display: block;
             position: fixed;
+            /* Fixed so it covers scroll */
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.05);
-            animation: flicker 0.2s infinite;
-            z-index: 1001;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
             pointer-events: none;
-            opacity: 0.03;
         }
 
-        @keyframes flicker {
-            0%, 100% { opacity: 0.03; }
-            50% { opacity: 0.06; }
-        }
-
-        /* Glass morphism panels - More Subtle */
-        .glass-panel {
-            background: var(--bg-panel);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(0, 255, 255, 0.2);
-            border-radius: 12px;
-            box-shadow: 
-                0 0 15px rgba(0, 255, 255, 0.15),
-                inset 0 0 15px rgba(0, 255, 255, 0.05);
-            padding: 20px;
+        /* Header */
+        header {
+            text-align: center;
             margin-bottom: 20px;
-            animation: fadeInUp 0.8s ease-out;
+            z-index: 10;
         }
 
-        .glow-border {
+        h1 {
+            font-size: 4rem;
+            margin: 0;
+            text-shadow: 0 0 10px var(--neon-green);
+            letter-spacing: 5px;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .generated-on {
+            font-size: 1rem;
+            opacity: 0.6;
+            margin-top: 0px;
+        }
+
+        /* Layout Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            /* 2 Columns */
+            gap: 20px;
+            z-index: 5;
+            padding-bottom: 40px;
+            /* Space for footer */
+        }
+
+        @media (max-width: 1000px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            border: 1px solid var(--border-color);
+            background: var(--glass-bg);
+            padding: 15px;
             position: relative;
+            box-shadow: 0 0 10px var(--neon-green-dim);
+            display: flex;
+            flex-direction: column;
         }
 
-        .glow-border::before {
-            content: "";
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, 
-                var(--neon-cyan), 
-                var(--neon-blue), 
-                var(--neon-magenta), 
-                var(--neon-cyan));
-            border-radius: 14px;
-            z-index: -1;
-            opacity: 0.3;
-            animation: glowRotate 6s linear infinite;
+        .card-title {
+            font-size: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
         }
 
-        @keyframes glowRotate {
-            0% { filter: hue-rotate(0deg) blur(8px); }
-            100% { filter: hue-rotate(360deg) blur(8px); }
+        /* Heatmap Section */
+        #heatmap-container {
+            flex: 1;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Right Column Layout */
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        /* Gigantic Title */
-        .main-title {
-            text-align: left;
-            margin-bottom: 30px;
-            padding: 20px 0;
-            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+        /* Focus vs Distraction Panel */
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
         }
 
-        .title-pre {
-            font-size: 2.5rem;
-            color: rgba(0, 255, 255, 0.7);
-            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
-            display: block;
-            margin-bottom: -10px;
-        }
-
-        .title-main {
-            font-size: 5rem;
-            color: var(--neon-cyan);
-            text-shadow: 
-                0 0 10px var(--neon-cyan),
-                0 0 10px var(--neon-cyan),
-                0 0 20px var(--neon-cyan);
-            font-weight: bold;
-            display: block;
-            line-height: 1;
-            letter-spacing: 3px;
-        }
-
-        /* Typography */
-        h1, h2, h3, h4, h5, h6 {
-            color: var(--neon-cyan);
-            text-shadow: 0 0 8px var(--neon-cyan);
-            letter-spacing: 1px;
-            margin-bottom: 1rem;
-        }
-
-        h4 {
-            font-size: 1.8rem;
-            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
-            padding-bottom: 0.5rem;
-        }
-
-        small {
-            color: rgba(0, 255, 255, 0.7);
-            font-size: 0.9em;
-        }
-
-        b {
-            color: var(--neon-cyan);
-            text-shadow: 0 0 5px var(--neon-cyan);
-        }
-
-        /* Table styles */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        th {
-            color: var(--neon-green);
-            text-shadow: 0 0 8px var(--neon-green);
-            font-size: 1.2rem;
-        }
-
-        tr:hover td {
-            background: rgba(0, 255, 255, 0.1);
-            color: var(--neon-yellow);
-            text-shadow: 0 0 5px var(--neon-yellow);
-        }
-
-        /* Footer Styles */
-        .footer {
-            margin-top: 40px;
-            padding: 20px 0;
-            border-top: 1px solid rgba(0, 255, 255, 0.2);
+        .stat-box {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid var(--neon-green-mid);
+            padding: 10px;
+            width: 32%;
             text-align: center;
         }
 
-        .footer-content {
-            max-width: 600px;
-            margin: 0 auto;
+        .stat-label {
+            font-size: 1.2rem;
+            display: block;
         }
 
-        .footer-line {
+        .stat-value {
             font-size: 1.5rem;
-            margin: 5px 0;
-            opacity: 0;
-            animation: typeIn 0.5s ease-out forwards;
-            color: var(--neon-magenta);
-            text-shadow: 0 0 5px var(--neon-magenta);
+            font-weight: bold;
         }
 
-        .footer-line:nth-child(1) { animation-delay: 0.5s; }
-        .footer-line:nth-child(2) { animation-delay: 1.5s; }
-        .footer-line:nth-child(3) { animation-delay: 2.5s; }
-        .footer-line:nth-child(4) { animation-delay: 3.5s; }
-        .footer-line:nth-child(5) { animation-delay: 4.5s; }
-
-        @keyframes typeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .stat-pct {
+            font-size: 1rem;
+            color: #8f8;
         }
 
-        .signaturename {
-            margin-top: 20px;
-            font-size: 1.4rem;
-            color: var(--neon-green);
-            text-shadow: 0 0 8px var(--neon-green);
-            animation: pulse 2s infinite;
-        }
-
-        .signature {
-            margin-top: 20px;
-            font-size: 1.4rem;
-            color: var(--neon-cyan);
-            text-shadow: 0 0 8px var(--neon-cyan);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.8; }
-            50% { opacity: 1; }
-        }
-
-        /* Responsive design */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .row {
+        .main-stats {
             display: flex;
-            flex-wrap: wrap;
-            margin: 0 -10px;
+            justify-content: space-between;
+            margin-bottom: 20px;
         }
 
-        .col {
-            padding: 0 10px;
+        .main-stat-tile {
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            width: 32%;
+            text-align: center;
+        }
+
+        .main-stat-val {
+            font-size: 2.5rem;
+            text-shadow: 0 0 5px var(--neon-green);
+        }
+
+        .off-pc-line {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #8f8;
+            border-top: 1px dashed var(--neon-green-dim);
+            padding-top: 10px;
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .huge-timer {
+            font-size: 3rem;
+            line-height: 1;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: #002200;
+            border: 1px solid var(--neon-green);
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--neon-green);
+            width: 0%;
+            box-shadow: 0 0 10px var(--neon-green);
+            transition: width 1s ease;
+        }
+
+        .alert-text {
+            font-size: 0.9rem;
+            margin-top: 10px;
+            color: #8f8;
+        }
+
+        /* Donut Chart Section */
+        .app-breakdown {
+            display: flex;
             flex: 1;
-            min-width: 300px;
+            align-items: center;
+            font-size: 0.8rem;
+            /* Smaller font for list */
+            gap: 15px;
         }
 
-        /* Tooltip enhancements */
-        .tooltip {
-            background: rgba(0, 10, 20, 0.9) !important;
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(0, 255, 255, 0.4) !important;
-            border-radius: 8px !important;
-            box-shadow: 
-                0 0 25px rgba(0, 255, 255, 0.2),
-                inset 0 0 15px rgba(0, 255, 255, 0.1) !important;
-            color: var(--neon-cyan) !important;
-            font-size: 1.1rem !important;
-            padding: 15px !important;
-            text-shadow: 0 0 5px var(--neon-cyan);
+        #pieChart {
+            width: 200px;
+            height: 200px;
+            flex-shrink: 0;
         }
 
-        /* Color badges in table */
-        .color-badge {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-            box-shadow: 0 0 6px currentColor;
-            vertical-align: middle;
+        #app-list {
+            flex: 1;
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #002200;
+            padding: 5px;
         }
 
-        /* Loading animation */
-        .loading {
-            opacity: 0;
-            animation: fadeInUp 0.8s ease-out 0.2s forwards;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        @media (max-width: 768px) {
-            .col {
-                flex: 100%;
-                margin-bottom: 20px;
-            }
-            
-            .glass-panel {
-                padding: 15px;
-            }
-            
-            h4 {
-                font-size: 1.5rem;
-            }
-            
-            .title-pre {
-                font-size: 2rem;
-            }
-            
-            .title-main {
-                font-size: 3.5rem;
-            }
+        td {
+            padding: 2px 5px;
+            border-bottom: 1px solid #004400;
         }
 
-        @media (max-width: 480px) {
-            .title-pre {
-                font-size: 1.5rem;
-            }
-            
-            .title-main {
-                font-size: 2.5rem;
-            }
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #001100;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #008800;
+        }
+
+        /* Footer / Status Bar */
+        .status-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 5px 20px;
+            border-top: 1px solid var(--border-color);
+            background: #000;
+            z-index: 10;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
         }
     </style>
 </head>
+
 <body>
-    <div class="container loading">
-        <!-- Gigantic Title -->
-        <div class="main-title">
-            <span class="title-pre">time to</span>
-            <span class="title-main">Touch Grass</span>
+
+    <header>
+        <h1>TIME TO TOUCH GRASS</h1>
+        <div class="subtitle" id="report-title">REPORT OF DATE</div>
+        <div class="generated-on" id="generated-date">GENERATED ON DATE</div>
+    </header>
+
+    <div class="dashboard">
+        <!-- Left Column: Heatmap -->
+        <div class="card">
+            <div class="card-title">ACTIVITY <small style="float:right; opacity:0.6;">Last 2 days</small></div>
+            <div id="heatmap-container">
+                <div id="my_dataviz"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 10px; opacity: 0.7;">
+                <span>LEAST ENGAGED</span>
+                <span>MOST ENGAGED</span>
+            </div>
+            <div style="height: 10px; background: linear-gradient(90deg, #002200, #00ff00); margin-top: 5px;"></div>
         </div>
 
-        <div class="row">
-            <div class="col l6 m12">
-                <div class="glass-panel glow-border">
-                    <div id="pieChart" style="margin: auto;"></div>
-                </div>
-            </div>
-            <div class="col l6 m12">
-                <div class="glass-panel">
-                    <h4 id="title"></h4>
-                    <p id="generated"></p>
-                </div>
-                <div id="numeric" class="glass-panel">
-                    <table>
-                        <tr>
-                            <th>Process</th>
-                            <th>Time</th>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </div>
+        <!-- Right Column -->
+        <div class="right-column">
 
-        <div class="glass-panel glow-border">
-            <div id="my_dataviz" style="position: relative;"></div>
-        </div>
+            <!-- Focus vs Distraction -->
+            <div class="card">
+                <div class="card-title">FOCUS VS DISTRACTION &#183; DAILY BALANCE</div>
 
-        <!-- Animated Footer -->
-         <div class="footer">
-            <div class="footer-content">
-                <div id="footer-terminal">
-                    <div class="terminal-line">
-                        <span class="prompt">$</span>
-                        <span class="signature">Initializing ManasviOS v2.0...</span>
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <span class="stat-label">DEEP WORK</span>
+                        <span class="stat-pct" id="dw-pct">0%</span>
                     </div>
-                    <div class="terminal-line">
-                        <span class="prompt">$</span>
-                        <span class="signature">Loading sarcasm module...</span>
+                    <div class="stat-box">
+                        <span class="stat-label">ADMIN</span>
+                        <span class="stat-pct" id="admin-pct">0%</span>
                     </div>
-                    <div id="dynamic-line" class="terminal-line">
-                        <span class="prompt">$</span>
-                        <span id="signature" class="signature"></span>
-                        <span class="cursor">|</span>
+                    <div class="stat-box">
+                        <span class="stat-label">DISTRACTION</span>
+                        <span class="stat-pct" id="dist-pct">0%</span>
                     </div>
                 </div>
-                <div class="signaturename">built w <3 by Manasvi</div>
+
+                <div class="main-stats">
+                    <div class="main-stat-tile">
+                        <div>TOTAL SCREEN</div>
+                        <div class="main-stat-val" id="total-time">00H 00M</div>
+                    </div>
+                    <div class="main-stat-tile">
+                        <div>DEEP WORK</div>
+                        <div class="main-stat-val" id="dw-time">00H 00M</div>
+                    </div>
+                    <div class="main-stat-tile">
+                        <div>DISTRACTION</div>
+                        <div class="main-stat-val" id="dist-time">00H 00M</div>
+                    </div>
+                </div>
+
+                <div class="off-pc-line" id="off-pc-text">OFF-PC TIME: 0h 00m</div>
+
+                <div class="progress-section">
+                    <div class="progress-header">
+                        <div class="huge-timer" id="time-until-break">00h 45m</div>
+                        <div>TIME UNTIL BREAK (Cap: 2h)</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="distraction-bar"></div>
+                    </div>
+                    <div class="alert-text">ALERT PIPELINE: When distraction time hits the cap, switch UI accents.</div>
+                </div>
             </div>
+
+            <!-- Time by App -->
+            <div class="card" style="flex: 1;">
+                <div class="card-title">TIME BY APP</div>
+                <div class="app-breakdown">
+                    <div id="pieChart"></div>
+                    <div id="app-list">
+                        <table id="app-table">
+                            <!-- Rows injected by JS -->
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
+    <div class="status-bar">
+        <span>> Initializing ManasviOS v2.0...</span>
+        <span>| App status: 100% grass-free | built with &lt;3 by Manasvi</span>
+    </div>
+
+    <!-- Data Injection -->
     <div style="display: none;" id="json_data">{{json_data}}</div>
-    
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" crossorigin="anonymous"></script>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script src="d3pie.js"></script>
-    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
-    <script src="app.js"></script>
+    <script src="d3pie.js"></script> <!-- reusing existing library -->
+
+    <script>
+        // Inline JS to handle the new data structure
+        $(document).ready(function () {
+            const rawData = $('#json_data').html();
+            console.log("Raw Data:", rawData);
+            if (!rawData) return;
+
+            const data = JSON.parse(rawData);
+            const stats = data.stats;
+            const csvData = data.csv_data; // This is now Valid Rows only
+
+            // Header
+            $('#report-title').text(data.report_date.toUpperCase());
+            $('#generated-date').text('GENERATED ON ' + data.generation_date.toUpperCase());
+
+            // Stats Fill
+            $('#dw-pct').text(stats.deep_work_pct + '%');
+            $('#admin-pct').text(stats.admin_pct + '%');
+            $('#dist-pct').text(stats.distraction_pct + '%');
+
+            $('#total-time').text(minsToHM(stats.total_screen_mins));
+            $('#dw-time').text(minsToHM(stats.deep_work_mins));
+            $('#dist-time').text(minsToHM(stats.distraction_mins));
+
+            $('#off-pc-text').text('OFF-PC TIME: ' + minsToHM(stats.off_pc_mins));
+
+            // Progress Bar
+            $('#time-until-break').text(minsToHM(stats.time_until_break_mins));
+            const progressPct = (stats.distraction_mins / stats.distraction_cap_mins) * 100;
+            $('#distraction-bar').css('width', Math.min(100, progressPct) + '%');
+
+            if (progressPct > 100) {
+                $('#distraction-bar').css('background', 'red');
+                $('.huge-timer').css('color', 'red');
+            } else if (progressPct > 80) {
+                $('#distraction-bar').css('background', 'orange');
+                $('.huge-timer').css('color', 'orange');
+            }
+
+            // Charts
+            buildVisuals(csvData);
+        });
+
+        function minsToHM(mins) {
+            const h = Math.floor(mins / 60);
+            const m = mins % 60;
+            return `${h}H ${m.toString().padStart(2, '0')}M`;
+        }
+
+        function buildVisuals(rows) {
+            // Process Counters for Pie/Donut
+            const processCounts = {};
+            // rows already have cleaned 'process' names from python
+            rows.forEach(r => {
+                const p = r.process;
+                // 1 row = 0.5 mins
+                processCounts[p] = (processCounts[p] || 0) + 0.5;
+            });
+
+            // Prepare Data for Donut
+            const sortedApps = Object.keys(processCounts).sort((a, b) => processCounts[b] - processCounts[a]);
+            const pieData = sortedApps.slice(0, 8).map(app => { // Top 8 only to avoid clutter
+                return {
+                    label: app,
+                    value: processCounts[app]
+                };
+            });
+
+            // Fill Table first to generate colors? Or generate first.
+
+            // Palette for Top N apps (Monochromatic Green)
+            const greenPalette = [
+                '#4af626', // Brightest
+                '#3cb324',
+                '#2e8b23',
+                '#256f1f',
+                '#1e5318',
+                '#153d10',
+                '#0d260a'
+            ];
+
+            pieData.forEach((d, i) => {
+                d.color = greenPalette[i] || '#0d260a';
+            });
+
+            buildCustomDonut(pieData, rows.length * 0.5); // Total mins
+
+            // Fill Table
+            const $tbl = $('#app-table');
+            $tbl.empty();
+
+            pieData.forEach((d, i) => {
+                const pct = ((d.value / (rows.length * 0.5)) * 100).toFixed(1);
+                $tbl.append(`<tr>
+                    <td>
+                        <span style="width:10px; height:10px; background:${d.color}; display:inline-block; margin-right:5px;"></span>
+                        ${d.label}
+                    </td>
+                    <td style="text-align:right">${pct}%</td>
+                    <td style="text-align:right;">${minsToHM(Math.floor(d.value))}</td>
+                </tr>`);
+            });
+
+            // Update buildvisuals to check for heatmap_data
+            var rawJson = $('#json_data').html();
+            try {
+                var json_data = JSON.parse(rawJson);
+                var hdata = json_data.heatmap_data;
+                if (hdata && hdata.length > 0) {
+                    buildHeatMap(hdata);
+                } else {
+                    console.log("No heatmap data found");
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function buildCustomDonut(data, totalMins) {
+            $('#pieChart').empty();
+
+            const width = 200;
+            const height = 200;
+            const margin = 10;
+
+            const radius = Math.min(width, height) / 2 - margin;
+
+            const svg = d3.select("#pieChart")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+            // The arc generator
+            const arc = d3.arc()
+                .innerRadius(radius * 0.5)         // This is the size of the donut hole
+                .outerRadius(radius * 0.9)
+                .cornerRadius(2); // Slight rounding for style
+
+            // The pie generator
+            const pie = d3.pie()
+                .value(function (d) { return d.value; })
+                .sort(null)
+                .padAngle(0.03); // Space between slices
+
+            // Compute the position of each group on the pie:
+            const data_ready = pie(data);
+
+            // Build the pie chart
+            svg
+                .selectAll('path')
+                .data(data_ready)
+                .enter()
+                .append('path')
+                .attr('d', arc)
+                .attr('fill', function (d) { return d.data.color })
+                .style("stroke", "black")
+                .style("stroke-width", "1px");
+        }
+
+        function buildHeatMap(heatmapData) {
+            // Data: { day: "Mon 12", day_sort: "yyyy-mm-dd", hour: 0..23, value: 0..1 }
+
+            var container = document.getElementById("heatmap-container");
+            var width = container.offsetWidth;
+            var height = 400; // Fixed visual height
+            var margin = { top: 20, right: 30, bottom: 30, left: 40 };
+
+            width = width - margin.left - margin.right;
+            height = height - margin.top - margin.bottom;
+
+            d3.select("#my_dataviz").html("");
+
+            var svg = d3.select("#my_dataviz")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            // X Axis: Unique Days
+            const uniqueDaysMap = {};
+            heatmapData.forEach(d => uniqueDaysMap[d.day] = d.day_sort);
+            const days = Object.keys(uniqueDaysMap).sort((a, b) => uniqueDaysMap[a].localeCompare(uniqueDaysMap[b]));
+
+            var x = d3.scaleBand()
+                .range([0, width])
+                .domain(days)
+                .padding(0.1);
+
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x).tickSize(0))
+                .select(".domain").remove();
+
+            // Style Text
+            svg.selectAll(".tick text")
+                .style("font-family", "VT323")
+                .style("font-size", "14px")
+                .style("fill", "#2e8b23");
+
+            // Y Axis: Hours 0..23 (Top to Bottom for "Day View" usually 0 is top)
+            var hours = d3.range(0, 24);
+            var y = d3.scaleBand()
+                .range([0, height]) // 0 at top
+                .domain(hours)
+                .padding(0.05);
+
+            svg.append("g")
+                .call(d3.axisLeft(y)
+                    .tickValues([0, 4, 8, 12, 16, 20]) // Sparse labels
+                    .tickFormat(d => {
+                        if (d == 0) return "12AM";
+                        if (d == 12) return "12PM";
+                        if (d > 12) return (d - 12) + "PM";
+                        return d + "AM";
+                    })
+                    .tickSize(0)
+                )
+                .select(".domain").remove();
+
+            svg.selectAll(".tick text")
+                .style("font-family", "VT323")
+                .style("font-size", "14px")
+                .style("fill", "#2e8b23");
+
+            // Color Scale
+            var myColor = d3.scaleLinear()
+                .range(["#050a05", "#4af626"]) // bg-dark to neon-green (bright)
+                .domain([0, 1]);
+
+            svg.selectAll()
+                .data(heatmapData)
+                .enter()
+                .append("rect")
+                .attr("x", function (d) { return x(d.day) })
+                .attr("y", function (d) { return y(d.hour) })
+                .attr("width", x.bandwidth())
+                .attr("height", y.bandwidth())
+                .style("fill", function (d) { return myColor(d.value) })
+                .style("stroke", "#1e5318") // Grid lines
+                .style("stroke-width", 1);
+        }
+
+    </script>
 </body>
+
 </html>

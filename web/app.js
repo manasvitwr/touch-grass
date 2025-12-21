@@ -165,7 +165,14 @@ async function buildvisuals() {
 
     generate_pie(processcount);
     console.log(processed_data);
-    buildHeatMap(processed_data);
+    // Update buildvisuals to check for heatmap_data
+    var hdata = json_data.heatmap_data;
+    if (hdata && hdata.length > 0) {
+        buildHeatMap(hdata);
+    } else {
+        // Fallback to single day extraction (legacy logic removed/simplified)
+        console.log("No heatmap data found");
+    }
     loadnumeric();
 }
 
@@ -175,10 +182,13 @@ function generate_color() {
     return neonColors[Math.floor(Math.random() * neonColors.length)];
 }
 
-function buildHeatMap(csv_data) {
-    var margin = {top: 80, right: 25, bottom: 30, left: 40},
-    width = 1200 - margin.left - margin.right,
-    height = 450 - margin.top - margin.bottom;
+function buildHeatMap(heatmapData) {
+    // Data is array of { day: "Mon 12", day_sort: "2025-12-12", hour: 0, value: 0.5 }
+    
+    var margin = {top: 40, right: 25, bottom: 30, left: 40},
+    containerWidth = document.getElementById("heatmap-container").offsetWidth,
+    width = containerWidth - margin.left - margin.right,
+    height = 450 - margin.top - margin.bottom; // Fixed height
 
     // Clear previous content
     d3.select("#my_dataviz").html("");
@@ -191,13 +201,29 @@ function buildHeatMap(csv_data) {
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var myGroups = [];
-    for(var i = 0; i<60; i++)
-        myGroups.push(i.toString());
+    // Distinct Days
+    // We need to preserve order, so we use day_sort to sort unique days
+    const uniqueDaysMap = {};
+    heatmapData.forEach(d => {
+        uniqueDaysMap[d.day] = d.day_sort;
+    });
     
+    // Sort keys by value (day_sort)
+    const myGroups = Object.keys(uniqueDaysMap).sort((a,b) => {
+        return uniqueDaysMap[a].localeCompare(uniqueDaysMap[b]);
+    });
+
+    // Hours 0-23
     var myVars = [];
-    for(var i = 23; i>=0; i--)
-        myVars.push(i.toString());
+    for(var i = 0; i<24; i++) myVars.push(i);
+    
+    // Labels for Y axis (12AM, 4AM...)
+    const yLabels = myVars.map(h => {
+        if(h === 0) return "12AM";
+        if(h === 12) return "12PM";
+        if(h > 12) return (h-12) + "PM";
+        return h + "AM";
+    });
 
     // Build X scales and axis:
     var x = d3.scaleBand()
@@ -206,149 +232,88 @@ function buildHeatMap(csv_data) {
         .padding(0.05);
         
     svg.append("g")
-        .style("font-size", 12)
+        .style("font-size", "12px")
         .style("font-family", "VT323, monospace")
-        .style("color", "#00ffff")
+        .style("color", "#00ff00")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x).tickSize(0))
         .select(".domain").remove();
 
     // Build Y scales and axis:
     var y = d3.scaleBand()
-        .range([ height, 0 ])
+        .range([ 0, height ]) // Top to bottom (0 -> 23)
         .domain(myVars)
         .padding(0.05);
         
     svg.append("g")
-        .style("font-size", 12)
+        .style("font-size", "12px")
         .style("font-family", "VT323, monospace")
-        .style("color", "#00ffff")
-        .call(d3.axisLeft(y).tickSize(0))
+        .style("color", "#00ff00")
+        .call(d3.axisLeft(y).tickFormat((d,i) => {
+             // Show label every 4 hours or so to avoid clutter?
+             // Or full 24 if height permits. 450px is plenty for 24 labels.
+             // But let's show 12AM, 6AM, 12PM, 6PM for style if 24 is too crowded.
+             // Actually user asked for "00:00-23:00". 
+             // Let's simple format.
+             if(d === 0) return "12AM";
+             if(d === 12) return "12PM";
+             if(d > 12) return (d-12)+"PM";
+             return d+"AM";
+        }).tickSize(0))
         .select(".domain").remove();
 
-    // Enhanced tooltip with glass effect
+    // Color Scale: Green brightness
+    // Value 0-1
+    var myColor = d3.scaleLinear()
+        .range(["#002200", "#00ff00"])
+        .domain([0, 1]);
+
+    // Tooltip
     var tooltip = d3.select("#my_dataviz")
         .append("div")
         .style("opacity", 0)
         .attr("class", "tooltip")
         .style("position", "absolute")
-        .style("z-index", "1000")
-        .style("pointer-events", "none")
-        .style("transition", "all 0.3s ease");
+        .style("background", "rgba(0,0,0,0.9)")
+        .style("border", "1px solid #0f0")
+        .style("padding", "5px")
+        .style("pointer-events", "none");
 
-    // Enhanced hover effects
     var mouseover = function(d) {
-        tooltip
-            .style("opacity", 1)
-            .style("display", "block");
-            
+        tooltip.style("opacity", 1);
         d3.select(this)
-            .transition()
-            .duration(300)
-            .attr("width", x.bandwidth() * 1.1)
-            .attr("height", y.bandwidth() * 1.1)
-            .attr("x", function(d) { return x(d.group) - (x.bandwidth() * 0.05) })
-            .attr("y", function(d) { return y(d.variable) - (y.bandwidth() * 0.05) })
-            .style("opacity", 1)
-            .style("filter", "url(#glow)");
+            .style("stroke", "white")
+            .style("stroke-width", 2);
     }
-    
     var mousemove = function(d) {
+        var valTxt = d.raw ? (d.raw + " units") : "No Activity";
         tooltip
-            .html(`
-                <div style="text-align: center;">
-                    <strong style="color: #00ffff; text-shadow: 0 0 8px #00ffff;">${d.process}</strong><br/>
-                    <span style="color: #88ff88;">${d.title}</span><br/>
-                    <small style="color: #ffff88;">${d.date.toLocaleString()}</small>
-                </div>
-            `)
-            .style("left", (d3.event.pageX + 15) + "px")
-            .style("top", (d3.event.pageY - 15) + "px");
+            .html(`${d.day} @ ${d.hour}:00<br>${valTxt}`)
+            .style("left", (d3.event.pageX + 10) + "px")
+            .style("top", (d3.event.pageY - 10) + "px");
     }
-    
     var mouseleave = function(d) {
-        tooltip
-            .style("opacity", 0)
-            .style("display", "none");
-            
+        tooltip.style("opacity", 0);
         d3.select(this)
-            .transition()
-            .duration(300)
-            .attr("width", x.bandwidth())
-            .attr("height", y.bandwidth())
-            .attr("x", function(d) { return x(d.group) })
-            .attr("y", function(d) { return y(d.variable) })
-            .style("opacity", 0.8)
-            .style("filter", "none");
+            .style("stroke", "none");
     }
 
-    // Add glow filter for hover effects
-    var defs = svg.append("defs");
-    var filter = defs.append("filter")
-        .attr("id", "glow")
-        .attr("height", "300%")
-        .attr("width", "300%")
-        .attr("x", "-100%")
-        .attr("y", "-100%");
-        
-    filter.append("feGaussianBlur")
-        .attr("stdDeviation", "3.5")
-        .attr("result", "coloredBlur");
-        
-    var feMerge = filter.append("feMerge");
-    feMerge.append("feMergeNode")
-        .attr("in", "coloredBlur");
-    feMerge.append("feMergeNode")
-        .attr("in", "SourceGraphic");
-
-    // add the squares with enhanced styling
-    console.log(csv_data);
+    // Add squares
     svg.selectAll()
-        .data(csv_data, function(d) {return d.group+':'+d.variable;})
+        .data(heatmapData, function(d) {return d.day+':'+d.hour;})
         .enter()
         .append("rect")
-        .attr("x", function(d) { return x(d.group) })
-        .attr("y", function(d) { return y(d.variable) })
-        .attr("rx", 6)  // Rounded corners
-        .attr("ry", 6)  // Rounded corners
+        .attr("x", function(d) { return x(d.day) })
+        .attr("y", function(d) { return y(d.hour) })
         .attr("width", x.bandwidth())
         .attr("height", y.bandwidth())
-        .style("fill", function(d) { 
-            const color = pcolor[d.process] || generate_color();
-            // Convert to semi-transparent with neon border
-            return color + "40"; // 25% opacity
-        })
-        .style("stroke", function(d) { 
-            return pcolor[d.process] || generate_color();
-        })
-        .style("stroke-width", 2)
-        .style("opacity", 0.8)
-        .style("transition", "all 0.3s ease")
+        .style("fill", function(d) { return myColor(d.value) })
+        .style("opacity", function(d) { return d.value > 0 ? 1 : 0.3; }) // dim for 0
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
         .on("mouseleave", mouseleave);
 
-    // Enhanced titles
-    svg.append("text")
-        .attr("x", 0)
-        .attr("y", -50)
-        .attr("text-anchor", "left")
-        .style("font-size", "24px")
-        .style("font-family", "VT323, monospace")
-        .style("fill", "#00ffff")
-        .style("text-shadow", "0 0 10px #00ffff")
-        .text("Activity");
-
-    svg.append("text")
-        .attr("x", 0)
-        .attr("y", -20)
-        .attr("text-anchor", "left")
-        .style("font-size", "16px")
-        .style("font-family", "VT323, monospace")
-        .style("fill", "#88ffff")
-        .style("opacity", 0.8)
-        .text("Minute-to-Minute activity map");
-}
+    }
 // Advanced Typewriter system for footer with multiple lines
 function initTypewriter() {
     const messages = [
