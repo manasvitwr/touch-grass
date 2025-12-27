@@ -1,4 +1,4 @@
-Touch Grass is a Windows activity tracker for people who suspect they should probably touch grass a bit more often. It logs what you are actually doing on your PC, stores everything locally, and turns it into heatmaps, charts, and time‑series graphs so you can see where the day really went.
+Touch Grass is a Windows activity tracker for people who suspect they should probably touch grass a bit more often. It logs what you are actually doing on your PC, stores everything locally, and turns it into X analytics style heatmaps, charts, and time‑series graphs so you can see where the day really went.
 
 ## Overview
 
@@ -116,5 +116,5 @@ Once the logger has been running for a while, you can use a batch file to genera
 - The script removes the `TouchGrass\ContinuousLogger` task and prints a confirmation before closing.
 
 
-Set it up once, let it quietly watch your screen time, and then use the reports to decide whether you earned your right to not touch grass today—or whether it is time to close the browser and go outside 🍀
+Set it up once, let it quietly watch your screen time, and then use the reports to decide whether you earned your right to not touch grass today or whether it is time to close the browser and go outside 🍀
 
