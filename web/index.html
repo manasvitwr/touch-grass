@@ -309,7 +309,7 @@
     <div class="dashboard">
         <!-- Left Column: Heatmap -->
         <div class="card">
-            <div class="card-title">ACTIVITY <small style="float:right; opacity:0.6;">Last 2 days</small></div>
+            <div class="card-title">ACTIVITY <small style="float:right; opacity:0.6;">Last 7 days</small></div>
             <div id="heatmap-container">
                 <div id="my_dataviz"></div>
             </div>
@@ -403,9 +403,13 @@
     <script>
         // Inline JS to handle the new data structure
         $(document).ready(function () {
-            const rawData = $('#json_data').html();
+            // Use vanilla JS .textContent instead of jQuery .html() for file:// protocol compatibility
+            const rawData = document.getElementById('json_data').textContent;
             console.log("Raw Data:", rawData);
-            if (!rawData) return;
+            if (!rawData || rawData.trim() === '') {
+                console.error("No data found in #json_data element");
+                return;
+            }
 
             const data = JSON.parse(rawData);
             const stats = data.stats;
@@ -504,7 +508,7 @@
             });
 
             // Update buildvisuals to check for heatmap_data
-            var rawJson = $('#json_data').html();
+            var rawJson = document.getElementById('json_data').textContent;
             try {
                 var json_data = JSON.parse(rawJson);
                 var hdata = json_data.heatmap_data;
