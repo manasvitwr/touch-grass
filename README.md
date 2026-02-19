@@ -118,3 +118,4 @@ Once the logger has been running for a while, you can use a batch file to genera
 
 Set it up once, let it quietly watch your screen time, and then use the reports to decide whether you earned your right to not touch grass today or whether it is time to close the browser and go outside 🍀
 
+**made w ❤ by manasvi**
